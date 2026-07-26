@@ -88,6 +88,40 @@ MODES = {
 }
 
 DEFAULT_MODEL = os.environ.get("DEFAULT_MODEL", "llama3.1")
+MAX_HISTORY_MESSAGES = 30  # số tin nhắn gần nhất gửi cho model, tránh tràn ngữ cảnh
+PROFILE_PATH = os.path.join(DATA_DIR, "profile.json")
+STOP_FLAGS = {}  # thread_id -> True nghĩa là yêu cầu dừng tạo phản hồi
+
+
+def load_profile():
+    if not os.path.exists(PROFILE_PATH):
+        return {}
+    with open(PROFILE_PATH, "r", encoding="utf-8") as f:
+        return json.load(f)
+
+
+def save_profile(data: dict):
+    with open(PROFILE_PATH, "w", encoding="utf-8") as f:
+        json.dump(data, f, ensure_ascii=False, indent=2)
+
+
+def profile_to_text(p: dict) -> str:
+    if not p:
+        return ""
+    parts = []
+    if p.get("name"):
+        parts.append(f"tên {p['name']}")
+    if p.get("age"):
+        parts.append(f"{p['age']} tuổi")
+    if p.get("gender"):
+        parts.append(f"giới tính {p['gender']}")
+    if p.get("looking_for"):
+        parts.append(f"đang tìm kiếm: {p['looking_for']}")
+    if p.get("interests"):
+        parts.append(f"sở thích: {p['interests']}")
+    if p.get("notes"):
+        parts.append(f"ghi chú thêm: {p['notes']}")
+    return "; ".join(parts)
 
 
 # ---------------------------------------------------------------------------
@@ -230,6 +264,43 @@ def export_thread(thread_id):
 
 
 # ---------------------------------------------------------------------------
+# Route: hồ sơ cá nhân (dùng để cá nhân hoá lời khuyên)
+# ---------------------------------------------------------------------------
+@app.route("/api/profile", methods=["GET"])
+def get_profile():
+    return jsonify(load_profile())
+
+
+@app.route("/api/profile", methods=["POST"])
+def set_profile():
+    body = request.get_json(force=True) or {}
+    allowed = {"name", "age", "gender", "looking_for", "interests", "notes"}
+    profile = {k: v for k, v in body.items() if k in allowed and str(v).strip()}
+    save_profile(profile)
+    return jsonify(profile)
+
+
+@app.route("/api/health")
+def health():
+    try:
+        r = requests.get(f"{OLLAMA_URL}/api/tags", timeout=3)
+        r.raise_for_status()
+        models = [m["name"] for m in r.json().get("models", [])]
+        return jsonify({"ollama_running": True, "models": models})
+    except Exception:
+        return jsonify({"ollama_running": False, "models": []})
+
+
+@app.route("/api/chat/stop", methods=["POST"])
+def stop_chat():
+    body = request.get_json(force=True) or {}
+    thread_id = body.get("thread_id")
+    if thread_id:
+        STOP_FLAGS[thread_id] = True
+    return jsonify({"ok": True})
+
+
+# ---------------------------------------------------------------------------
 # Route: chat (streaming, gọi Ollama cục bộ)
 # ---------------------------------------------------------------------------
 @app.route("/api/chat", methods=["POST"])
@@ -239,6 +310,7 @@ def chat():
     user_message = body.get("message", "").strip()
     model = body.get("model") or DEFAULT_MODEL
     temperature = float(body.get("temperature", 0.8))
+    regenerate = bool(body.get("regenerate", False))
 
     data = load_thread(thread_id) if thread_id else None
     if data is None:
@@ -246,11 +318,26 @@ def chat():
 
     mode = data.get("mode", "coach")
     system_prompt = MODES.get(mode, MODES["coach"])["system"]
+    profile_text = profile_to_text(load_profile())
+    if profile_text:
+        system_prompt += (
+            "\n\nThông tin về người dùng để cá nhân hoá phản hồi (đừng liệt kê lại y nguyên, "
+            "chỉ dùng ngầm để tư vấn phù hợp hơn): " + profile_text
+        )
 
-    data["messages"].append({"role": "user", "content": user_message, "ts": time.time()})
+    if regenerate:
+        while data["messages"] and data["messages"][-1]["role"] == "assistant":
+            data["messages"].pop()
+        if not data["messages"] or data["messages"][-1]["role"] != "user":
+            return jsonify({"error": "nothing_to_regenerate"}), 400
+    else:
+        data["messages"].append({"role": "user", "content": user_message, "ts": time.time()})
 
+    STOP_FLAGS[thread_id] = False
+
+    history = data["messages"][-MAX_HISTORY_MESSAGES:]
     ollama_messages = [{"role": "system", "content": system_prompt}]
-    for m in data["messages"]:
+    for m in history:
         ollama_messages.append({"role": m["role"], "content": m["content"]})
 
     def generate():
@@ -269,6 +356,8 @@ def chat():
             ) as r:
                 r.raise_for_status()
                 for line in r.iter_lines():
+                    if STOP_FLAGS.get(thread_id):
+                        break
                     if not line:
                         continue
                     chunk = json.loads(line.decode("utf-8"))
@@ -282,6 +371,7 @@ def chat():
             full_reply = err
             yield f"data: {json.dumps({'delta': err}, ensure_ascii=False)}\n\n"
 
+        STOP_FLAGS.pop(thread_id, None)
         data["messages"].append({"role": "assistant", "content": full_reply, "ts": time.time()})
         data["updated_at"] = datetime.now().isoformat()
         if data["title"] in (MODES.get(mode, {}).get("label"), "Cuộc trò chuyện") and len(data["messages"]) >= 2:

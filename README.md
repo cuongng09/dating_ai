@@ -96,8 +96,8 @@ After=network.target
 
 [Service]
 Type=simple
-WorkingDirectory=/home/cwng/Documents/GitHub/dating-ai
-ExecStart=/usr/bin/python3 /home/cwng/Documents/GitHub/dating-ai/server.py
+WorkingDirectory=/home/cwng/Documents/GitHub/dating_ai
+ExecStart=/usr/bin/python3 /home/cwng/Documents/GitHub/dating_ai/server.py
 Restart=on-failure
 RestartSec=5
 StandardOutput=journal
