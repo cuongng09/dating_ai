@@ -1,0 +1,818 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Ru Tim — Trợ lý hẹn hò cục bộ</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg-base:#20131e;
+    --bg-panel:#2b1a28;
+    --bg-panel-2:#341f30;
+    --bg-input:#3a2235;
+    --rose:#e0a0a6;
+    --rose-dim:#8a5a63;
+    --gold:#d8b47a;
+    --cream:#f5ece6;
+    --muted:#b39199;
+    --border:#472f42;
+    --danger:#e08a8a;
+  }
+  *{box-sizing:border-box;}
+  html,body{height:100%;}
+  body{
+    margin:0;
+    background:
+      radial-gradient(1200px 600px at 15% -10%, #3a2135 0%, transparent 60%),
+      radial-gradient(900px 500px at 100% 10%, #2f1a2c 0%, transparent 55%),
+      var(--bg-base);
+    color:var(--cream);
+    font-family:'Manrope',sans-serif;
+    display:flex;
+    height:100vh;
+    overflow:hidden;
+  }
+  ::-webkit-scrollbar{width:8px;}
+  ::-webkit-scrollbar-thumb{background:var(--border);border-radius:8px;}
+
+  /* ---------- Sidebar ---------- */
+  .sidebar{
+    width:300px;
+    flex-shrink:0;
+    background:var(--bg-panel);
+    border-right:1px solid var(--border);
+    display:flex;
+    flex-direction:column;
+    padding:20px 16px;
+    gap:18px;
+    overflow-y:auto;
+  }
+  .brand{
+    font-family:'Fraunces',serif;
+    font-size:22px;
+    font-weight:600;
+    letter-spacing:.2px;
+    color:var(--cream);
+    display:flex;
+    align-items:center;
+    gap:8px;
+  }
+  .brand small{
+    display:block;
+    font-family:'Manrope',sans-serif;
+    font-size:11px;
+    font-weight:600;
+    color:var(--muted);
+    letter-spacing:1.5px;
+    text-transform:uppercase;
+  }
+  .heart-pulse{width:26px;height:26px;flex-shrink:0;}
+
+  .section-label{
+    font-size:11px;
+    text-transform:uppercase;
+    letter-spacing:1.4px;
+    color:var(--muted);
+    font-weight:700;
+    margin:4px 0 -6px 2px;
+  }
+
+  .mode-list{display:flex;flex-direction:column;gap:6px;}
+  .mode-btn{
+    text-align:left;
+    background:transparent;
+    border:1px solid transparent;
+    border-radius:10px;
+    padding:10px 12px;
+    color:var(--cream);
+    cursor:pointer;
+    transition:.15s;
+    font-family:'Manrope',sans-serif;
+  }
+  .mode-btn .m-label{font-weight:700;font-size:13.5px;display:block;}
+  .mode-btn .m-sub{font-size:11.5px;color:var(--muted);display:block;margin-top:2px;line-height:1.3;}
+  .mode-btn:hover{background:var(--bg-panel-2);}
+  .mode-btn.active{
+    background:linear-gradient(135deg, rgba(224,160,166,.18), rgba(216,180,122,.10));
+    border-color:var(--rose-dim);
+  }
+
+  .new-chat-btn{
+    background:var(--gold);
+    color:#2a1a17;
+    border:none;
+    border-radius:10px;
+    padding:10px 14px;
+    font-weight:800;
+    font-size:13px;
+    cursor:pointer;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:6px;
+    transition:.15s;
+  }
+  .new-chat-btn:hover{filter:brightness(1.08);}
+
+  .thread-list{display:flex;flex-direction:column;gap:4px;flex:1;overflow-y:auto;}
+  .thread-item{
+    display:flex;align-items:center;justify-content:space-between;
+    padding:8px 10px;border-radius:8px;cursor:pointer;
+    font-size:12.5px;color:var(--muted);
+  }
+  .thread-item:hover{background:var(--bg-panel-2);color:var(--cream);}
+  .thread-item.active{background:var(--bg-panel-2);color:var(--cream);}
+  .thread-item .t-title{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:190px;}
+  .thread-item .t-del{opacity:0;color:var(--danger);font-weight:800;padding:0 4px;}
+  .thread-item:hover .t-del{opacity:1;}
+
+  .settings{
+    border-top:1px solid var(--border);
+    padding-top:14px;
+    font-size:12px;
+    color:var(--muted);
+    display:flex;
+    flex-direction:column;
+    gap:10px;
+  }
+  select, input[type=range]{
+    width:100%;
+    background:var(--bg-input);
+    color:var(--cream);
+    border:1px solid var(--border);
+    border-radius:8px;
+    padding:7px 8px;
+    font-family:'Manrope',sans-serif;
+    font-size:12.5px;
+  }
+  .row-between{display:flex;justify-content:space-between;align-items:center;}
+
+  /* ---------- Main ---------- */
+  .main{
+    flex:1;
+    display:flex;
+    flex-direction:column;
+    min-width:0;
+  }
+  .topbar{
+    padding:18px 28px;
+    border-bottom:1px solid var(--border);
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+  }
+  .topbar h1{
+    font-family:'Fraunces',serif;
+    font-size:19px;
+    font-weight:600;
+    margin:0;
+  }
+  .topbar .sub{font-size:12px;color:var(--muted);margin-top:3px;}
+  .pulse-divider{
+    height:22px;
+    width:100%;
+    overflow:hidden;
+  }
+  .pulse-divider svg{width:100%;height:100%;display:block;}
+  .pulse-line{
+    stroke:var(--rose-dim);
+    stroke-width:1.6;
+    fill:none;
+    stroke-dasharray:1400;
+    stroke-dashoffset:1400;
+    animation:draw 3.2s ease-in-out infinite;
+  }
+  @keyframes draw{
+    0%{stroke-dashoffset:1400;opacity:.35;}
+    50%{stroke-dashoffset:0;opacity:.9;}
+    100%{stroke-dashoffset:-1400;opacity:.35;}
+  }
+
+  .export-btn{
+    background:transparent;
+    border:1px solid var(--border);
+    color:var(--muted);
+    border-radius:8px;
+    padding:7px 12px;
+    font-size:12px;
+    cursor:pointer;
+    font-family:'Manrope',sans-serif;
+    font-weight:700;
+  }
+  .export-btn:hover{color:var(--cream);border-color:var(--rose-dim);}
+
+  .chat-area{
+    flex:1;
+    overflow-y:auto;
+    padding:24px 28px;
+    display:flex;
+    flex-direction:column;
+    gap:16px;
+  }
+  .empty-state{
+    margin:auto;
+    text-align:center;
+    max-width:420px;
+    color:var(--muted);
+  }
+  .empty-state h2{
+    font-family:'Fraunces',serif;
+    font-weight:500;
+    color:var(--cream);
+    font-size:20px;
+  }
+  .msg{
+    max-width:72%;
+    padding:12px 16px;
+    border-radius:16px;
+    font-size:14.5px;
+    line-height:1.55;
+    white-space:pre-wrap;
+    animation:fadeIn .25s ease;
+  }
+  @keyframes fadeIn{from{opacity:0;transform:translateY(4px);}to{opacity:1;transform:translateY(0);}}
+  .msg.user{
+    align-self:flex-end;
+    background:linear-gradient(135deg,#7a4356,#5c3247);
+    color:var(--cream);
+    border-bottom-right-radius:4px;
+  }
+  .msg.assistant{
+    align-self:flex-start;
+    background:var(--bg-panel-2);
+    border:1px solid var(--border);
+    color:var(--cream);
+    border-bottom-left-radius:4px;
+  }
+  .msg.typing{color:var(--muted);font-style:italic;}
+
+  .composer{
+    padding:16px 28px 22px;
+    border-top:1px solid var(--border);
+    display:flex;
+    gap:10px;
+    align-items:flex-end;
+  }
+  .composer textarea{
+    flex:1;
+    resize:none;
+    background:var(--bg-input);
+    border:1px solid var(--border);
+    color:var(--cream);
+    border-radius:14px;
+    padding:12px 14px;
+    font-family:'Manrope',sans-serif;
+    font-size:14px;
+    line-height:1.4;
+    max-height:140px;
+  }
+  .composer textarea:focus{outline:none;border-color:var(--rose-dim);}
+  .send-btn{
+    background:var(--rose);
+    border:none;
+    color:#2a1418;
+    width:46px;height:46px;
+    border-radius:50%;
+    cursor:pointer;
+    font-size:18px;
+    flex-shrink:0;
+    display:flex;align-items:center;justify-content:center;
+    transition:.15s;
+  }
+  .send-btn:hover{filter:brightness(1.08);}
+  .send-btn:disabled{opacity:.4;cursor:not-allowed;}
+
+  .hint{font-size:11px;color:var(--muted);text-align:center;padding-bottom:6px;}
+
+  .banner{
+    margin:14px 28px 0;
+    background:rgba(224,138,138,.12);
+    border:1px solid var(--danger);
+    color:var(--cream);
+    border-radius:10px;
+    padding:10px 14px;
+    font-size:12.5px;
+    display:none;
+  }
+  .banner.show{display:block;}
+  .banner code{background:rgba(0,0,0,.25);padding:1px 5px;border-radius:5px;}
+
+  .search-box{
+    width:100%;
+    background:var(--bg-input);
+    border:1px solid var(--border);
+    color:var(--cream);
+    border-radius:8px;
+    padding:7px 10px;
+    font-size:12.5px;
+    font-family:'Manrope',sans-serif;
+    margin-bottom:2px;
+  }
+  .search-box:focus{outline:none;border-color:var(--rose-dim);}
+
+  .profile-btn{
+    background:transparent;
+    border:1px solid var(--border);
+    color:var(--muted);
+    border-radius:8px;
+    padding:8px 10px;
+    font-size:12px;
+    font-weight:700;
+    cursor:pointer;
+    text-align:left;
+  }
+  .profile-btn:hover{color:var(--cream);border-color:var(--rose-dim);}
+
+  .msg-actions{
+    display:flex;
+    gap:8px;
+    margin-top:6px;
+  }
+  .msg-actions button{
+    background:transparent;
+    border:none;
+    color:var(--muted);
+    font-size:11px;
+    cursor:pointer;
+    padding:2px 4px;
+    font-family:'Manrope',sans-serif;
+    font-weight:700;
+  }
+  .msg-actions button:hover{color:var(--cream);}
+
+  .stop-btn{
+    background:var(--bg-input);
+    border:1px solid var(--danger);
+    color:var(--danger);
+  }
+
+  .modal-overlay{
+    position:fixed;inset:0;
+    background:rgba(10,4,9,.6);
+    display:none;
+    align-items:center;justify-content:center;
+    z-index:50;
+  }
+  .modal-overlay.show{display:flex;}
+  .modal{
+    background:var(--bg-panel);
+    border:1px solid var(--border);
+    border-radius:16px;
+    padding:24px;
+    width:400px;
+    max-width:90vw;
+    display:flex;flex-direction:column;gap:12px;
+  }
+  .modal h3{font-family:'Fraunces',serif;margin:0 0 4px;font-size:18px;}
+  .modal label{font-size:11.5px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.8px;}
+  .modal input, .modal textarea{
+    width:100%;background:var(--bg-input);border:1px solid var(--border);
+    color:var(--cream);border-radius:8px;padding:8px 10px;font-family:'Manrope',sans-serif;font-size:13px;
+  }
+  .modal textarea{resize:vertical;min-height:50px;}
+  .modal-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:4px;}
+  .modal-actions button{
+    border-radius:8px;padding:8px 16px;font-weight:700;font-size:13px;cursor:pointer;border:none;
+  }
+  .modal-actions .cancel{background:transparent;color:var(--muted);border:1px solid var(--border);}
+  .modal-actions .save{background:var(--gold);color:#2a1a17;}
+</style>
+</head>
+<body>
+
+  <aside class="sidebar">
+    <div class="brand">
+      <svg class="heart-pulse" viewBox="0 0 100 100"><path d="M50 85 C 20 60, 5 40, 5 25 C 5 10, 20 5, 30 12 C 38 17, 45 28, 50 35 C 55 28, 62 17, 70 12 C 80 5, 95 10, 95 25 C 95 40, 80 60, 50 85 Z" fill="none" stroke="#e0a0a6" stroke-width="5"/></svg>
+      <div>Ru Tim<br><small>Local dating AI</small></div>
+    </div>
+
+    <button class="new-chat-btn" id="newChatBtn">+ Cuộc trò chuyện mới</button>
+
+    <div>
+      <div class="section-label">Chế độ hỗ trợ</div>
+      <div class="mode-list" id="modeList"></div>
+    </div>
+
+    <div>
+      <div class="section-label">Lịch sử</div>
+      <input class="search-box" id="threadSearch" placeholder="Tìm cuộc trò chuyện..." />
+      <div class="thread-list" id="threadList"></div>
+    </div>
+
+    <div class="settings">
+      <button class="profile-btn" id="profileBtn">👤 Hồ sơ của bạn</button>
+      <div>
+        <div class="section-label" style="margin-bottom:6px;">Model Ollama</div>
+        <select id="modelSelect"></select>
+      </div>
+      <div>
+        <div class="row-between"><span>Độ sáng tạo</span><span id="tempVal">0.8</span></div>
+        <input type="range" id="tempRange" min="0" max="1.5" step="0.1" value="0.8">
+      </div>
+    </div>
+  </aside>
+
+  <main class="main">
+    <div class="topbar">
+      <div>
+        <h1 id="modeTitle">Cố vấn hẹn hò</h1>
+        <div class="sub" id="modeSubtitle">Trò chuyện, xin lời khuyên, gỡ rối tình huống</div>
+      </div>
+      <button class="export-btn" id="exportBtn">Xuất file .txt</button>
+    </div>
+    <div class="pulse-divider">
+      <svg viewBox="0 0 1000 22" preserveAspectRatio="none">
+        <path class="pulse-line" d="M0,11 L200,11 L230,2 L260,20 L290,11 L400,11 L430,4 L460,18 L490,11 L1000,11"/>
+      </svg>
+    </div>
+
+    <div class="banner" id="healthBanner">
+      ⚠️ Không kết nối được Ollama. Mở terminal chạy <code>ollama serve</code>, và đảm bảo đã
+      <code>ollama pull llama3.1</code> (hoặc model khác) trước khi chat.
+    </div>
+
+    <div class="chat-area" id="chatArea">
+      <div class="empty-state" id="emptyState">
+        <h2>Bắt đầu một cuộc trò chuyện</h2>
+        <p>Chọn chế độ ở thanh bên, hoặc bấm "Cuộc trò chuyện mới" rồi kể cho mình nghe bạn cần giúp gì nhé 💬</p>
+      </div>
+    </div>
+
+    <div class="composer">
+      <textarea id="msgInput" rows="1" placeholder="Nhắn gì đó... (Enter để gửi, Shift+Enter xuống dòng)"></textarea>
+      <button class="send-btn" id="sendBtn">➤</button>
+    </div>
+    <div class="hint">Toàn bộ dữ liệu lưu cục bộ trên máy bạn. Model chạy qua Ollama (http://localhost:11434).</div>
+  </main>
+
+<div class="modal-overlay" id="profileModal">
+  <div class="modal">
+    <h3>Hồ sơ của bạn</h3>
+    <div>
+      <label>Tên</label>
+      <input id="p_name" placeholder="VD: Minh" />
+    </div>
+    <div>
+      <label>Tuổi</label>
+      <input id="p_age" placeholder="VD: 27" />
+    </div>
+    <div>
+      <label>Giới tính</label>
+      <input id="p_gender" placeholder="VD: nam / nữ / khác" />
+    </div>
+    <div>
+      <label>Đang tìm kiếm</label>
+      <input id="p_looking" placeholder="VD: mối quan hệ nghiêm túc" />
+    </div>
+    <div>
+      <label>Sở thích</label>
+      <textarea id="p_interests" placeholder="VD: leo núi, nấu ăn, mèo, phim kinh dị"></textarea>
+    </div>
+    <div>
+      <label>Ghi chú thêm (tính cách, điều muốn AI lưu ý)</label>
+      <textarea id="p_notes" placeholder="VD: hơi nhút nhát lúc đầu, thích hài hước nhẹ nhàng"></textarea>
+    </div>
+    <div class="modal-actions">
+      <button class="cancel" id="profileCancel">Huỷ</button>
+      <button class="save" id="profileSave">Lưu</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const state = {
+  modes: [],
+  threads: [],
+  currentThread: null,
+  currentMode: 'coach',
+  models: [],
+  isStreaming: false,
+  abortController: null,
+  lastUserMsg: '',
+};
+
+async function checkHealth() {
+  try {
+    const h = await api('/api/health');
+    document.getElementById('healthBanner').classList.toggle('show', !h.ollama_running);
+    return h.ollama_running;
+  } catch (e) {
+    document.getElementById('healthBanner').classList.add('show');
+    return false;
+  }
+}
+
+async function api(path, opts) {
+  const res = await fetch(path, opts);
+  if (!res.ok) throw new Error('API error ' + res.status);
+  return res.json();
+}
+
+async function loadModes() {
+  state.modes = await api('/api/modes');
+  const list = document.getElementById('modeList');
+  list.innerHTML = '';
+  state.modes.forEach(m => {
+    const btn = document.createElement('button');
+    btn.className = 'mode-btn' + (m.id === state.currentMode ? ' active' : '');
+    btn.innerHTML = `<span class="m-label">${m.label}</span><span class="m-sub">${m.subtitle}</span>`;
+    btn.onclick = () => { state.currentMode = m.id; startNewThread(m.id); };
+    list.appendChild(btn);
+  });
+}
+
+async function loadModels() {
+  const sel = document.getElementById('modelSelect');
+  try {
+    const data = await api('/api/models');
+    sel.innerHTML = '';
+    if (!data.models || data.models.length === 0) {
+      const opt = document.createElement('option');
+      opt.textContent = 'Không tìm thấy model — chạy: ollama pull llama3.1';
+      sel.appendChild(opt);
+      return;
+    }
+    data.models.forEach(m => {
+      const opt = document.createElement('option');
+      opt.value = m; opt.textContent = m;
+      sel.appendChild(opt);
+    });
+  } catch (e) {
+    sel.innerHTML = '<option>Ollama chưa chạy — mở terminal: ollama serve</option>';
+  }
+}
+
+async function loadThreads() {
+  state.threads = await api('/api/threads');
+  renderThreadList();
+}
+
+function renderThreadList() {
+  const q = (document.getElementById('threadSearch').value || '').toLowerCase();
+  const list = document.getElementById('threadList');
+  list.innerHTML = '';
+  state.threads
+    .filter(t => t.title.toLowerCase().includes(q))
+    .forEach(t => {
+    const div = document.createElement('div');
+    div.className = 'thread-item' + (t.id === state.currentThread ? ' active' : '');
+    div.innerHTML = `<span class="t-title">${t.title}</span><span class="t-del" title="Xoá">✕</span>`;
+    div.querySelector('.t-title').onclick = () => openThread(t.id);
+    div.querySelector('.t-del').onclick = async (ev) => {
+      ev.stopPropagation();
+      await fetch('/api/threads/' + t.id, { method: 'DELETE' });
+      if (state.currentThread === t.id) { state.currentThread = null; renderEmpty(); }
+      loadThreads();
+    };
+    list.appendChild(div);
+  });
+}
+
+function renderEmpty() {
+  document.getElementById('chatArea').innerHTML = `
+    <div class="empty-state">
+      <h2>Bắt đầu một cuộc trò chuyện</h2>
+      <p>Chọn chế độ ở thanh bên, hoặc bấm "Cuộc trò chuyện mới" rồi kể cho mình nghe bạn cần giúp gì nhé 💬</p>
+    </div>`;
+}
+
+async function startNewThread(mode) {
+  const data = await api('/api/threads', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ mode }),
+  });
+  state.currentThread = data.id;
+  state.currentMode = mode;
+  updateTopbar(mode);
+  await loadModes();
+  await loadThreads();
+  renderEmpty();
+}
+
+async function openThread(id) {
+  const data = await api('/api/threads/' + id);
+  state.currentThread = id;
+  state.currentMode = data.mode;
+  updateTopbar(data.mode);
+  await loadModes();
+  await loadThreads();
+  const chatArea = document.getElementById('chatArea');
+  chatArea.innerHTML = '';
+  data.messages.forEach((m, idx) => {
+    const div = appendMsg(m.role, m.content);
+    if (m.role === 'assistant') addActions(div, idx === data.messages.length - 1);
+  });
+  chatArea.scrollTop = chatArea.scrollHeight;
+}
+
+function updateTopbar(modeId) {
+  const m = state.modes.find(x => x.id === modeId);
+  if (!m) return;
+  document.getElementById('modeTitle').textContent = m.label;
+  document.getElementById('modeSubtitle').textContent = m.subtitle;
+}
+
+function appendMsg(role, content) {
+  const empty = document.getElementById('emptyState');
+  if (empty) empty.remove();
+  const chatArea = document.getElementById('chatArea');
+  const div = document.createElement('div');
+  div.className = 'msg ' + role;
+  div.textContent = content;
+  div.dataset.raw = content;
+  chatArea.appendChild(div);
+  chatArea.scrollTop = chatArea.scrollHeight;
+  return div;
+}
+
+function addActions(div, isLast) {
+  document.querySelectorAll('.regen-btn').forEach(b => b.closest('.msg-actions').remove());
+  const bar = document.createElement('div');
+  bar.className = 'msg-actions';
+  const copyBtn = document.createElement('button');
+  copyBtn.textContent = '📋 Copy';
+  copyBtn.onclick = () => {
+    navigator.clipboard.writeText(div.dataset.raw || div.textContent);
+    copyBtn.textContent = '✓ Đã chép';
+    setTimeout(() => (copyBtn.textContent = '📋 Copy'), 1500);
+  };
+  bar.appendChild(copyBtn);
+  if (isLast) {
+    const regenBtn = document.createElement('button');
+    regenBtn.textContent = '↻ Tạo lại';
+    regenBtn.className = 'regen-btn';
+    regenBtn.onclick = regenerateLast;
+    bar.appendChild(regenBtn);
+  }
+  div.appendChild(bar);
+}
+
+function toggleSendStop(streaming) {
+  const btn = document.getElementById('sendBtn');
+  btn.disabled = false;
+  if (streaming) {
+    btn.textContent = '■';
+    btn.classList.add('stop-btn');
+    btn.onclick = stopGenerating;
+  } else {
+    btn.textContent = '➤';
+    btn.classList.remove('stop-btn');
+    btn.onclick = sendMessage;
+  }
+}
+
+function stopGenerating() {
+  if (state.abortController) state.abortController.abort();
+  if (state.currentThread) {
+    fetch('/api/chat/stop', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ thread_id: state.currentThread }),
+    });
+  }
+}
+
+async function streamAssistantReply(payload) {
+  const aiDiv = appendMsg('assistant typing', 'Đang soạn tin nhắn...');
+  aiDiv.classList.remove('typing');
+  state.isStreaming = true;
+  toggleSendStop(true);
+  const controller = new AbortController();
+  state.abortController = controller;
+  let full = '';
+  try {
+    const res = await fetch('/api/chat', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+      signal: controller.signal,
+    });
+    const reader = res.body.getReader();
+    const decoder = new TextDecoder();
+    let buffer = '';
+    aiDiv.textContent = '';
+    while (true) {
+      const { value, done } = await reader.read();
+      if (done) break;
+      buffer += decoder.decode(value, { stream: true });
+      const parts = buffer.split('\n\n');
+      buffer = parts.pop();
+      for (const part of parts) {
+        if (!part.startsWith('data: ')) continue;
+        const json = JSON.parse(part.slice(6));
+        if (json.delta) {
+          full += json.delta;
+          aiDiv.textContent = full;
+          document.getElementById('chatArea').scrollTop = document.getElementById('chatArea').scrollHeight;
+        }
+      }
+    }
+  } catch (e) {
+    if (e.name === 'AbortError') {
+      full += '\n\n[Đã dừng]';
+      aiDiv.textContent = full;
+    } else {
+      full = 'Lỗi kết nối máy chủ cục bộ: ' + e.message;
+      aiDiv.textContent = full;
+    }
+  } finally {
+    aiDiv.dataset.raw = full;
+    addActions(aiDiv, true);
+    state.isStreaming = false;
+    toggleSendStop(false);
+    loadThreads();
+  }
+}
+
+async function regenerateLast() {
+  if (state.isStreaming || !state.currentThread) return;
+  const chatArea = document.getElementById('chatArea');
+  const msgs = chatArea.querySelectorAll('.msg.assistant');
+  if (msgs.length) msgs[msgs.length - 1].remove();
+  const model = document.getElementById('modelSelect').value;
+  const temperature = document.getElementById('tempRange').value;
+  await streamAssistantReply({ thread_id: state.currentThread, regenerate: true, model, temperature });
+}
+
+async function sendMessage() {
+  if (state.isStreaming) return;
+  const input = document.getElementById('msgInput');
+  const text = input.value.trim();
+  if (!text) return;
+  if (!state.currentThread) {
+    await startNewThread(state.currentMode);
+  }
+  input.value = '';
+  input.style.height = 'auto';
+  document.querySelectorAll('.regen-btn').forEach(b => b.remove());
+  appendMsg('user', text);
+  const model = document.getElementById('modelSelect').value;
+  const temperature = document.getElementById('tempRange').value;
+  await streamAssistantReply({ thread_id: state.currentThread, message: text, model, temperature });
+}
+
+document.getElementById('sendBtn').onclick = sendMessage;
+document.getElementById('threadSearch').addEventListener('input', renderThreadList);
+document.getElementById('msgInput').addEventListener('keydown', (e) => {
+  if (e.key === 'Enter' && !e.shiftKey) {
+    e.preventDefault();
+    sendMessage();
+  }
+});
+document.getElementById('msgInput').addEventListener('input', function () {
+  this.style.height = 'auto';
+  this.style.height = Math.min(this.scrollHeight, 140) + 'px';
+});
+document.getElementById('newChatBtn').onclick = () => startNewThread(state.currentMode);
+document.getElementById('tempRange').addEventListener('input', function () {
+  document.getElementById('tempVal').textContent = this.value;
+});
+document.getElementById('exportBtn').onclick = () => {
+  if (!state.currentThread) return alert('Chưa có cuộc trò chuyện nào để xuất.');
+  window.location = '/api/threads/' + state.currentThread + '/export';
+};
+
+async function openProfileModal() {
+  const p = await api('/api/profile');
+  document.getElementById('p_name').value = p.name || '';
+  document.getElementById('p_age').value = p.age || '';
+  document.getElementById('p_gender').value = p.gender || '';
+  document.getElementById('p_looking').value = p.looking_for || '';
+  document.getElementById('p_interests').value = p.interests || '';
+  document.getElementById('p_notes').value = p.notes || '';
+  document.getElementById('profileModal').classList.add('show');
+}
+
+document.getElementById('profileBtn').onclick = openProfileModal;
+document.getElementById('profileCancel').onclick = () => document.getElementById('profileModal').classList.remove('show');
+document.getElementById('profileSave').onclick = async () => {
+  const payload = {
+    name: document.getElementById('p_name').value,
+    age: document.getElementById('p_age').value,
+    gender: document.getElementById('p_gender').value,
+    looking_for: document.getElementById('p_looking').value,
+    interests: document.getElementById('p_interests').value,
+    notes: document.getElementById('p_notes').value,
+  };
+  await fetch('/api/profile', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload),
+  });
+  document.getElementById('profileModal').classList.remove('show');
+};
+
+(async function init() {
+  await checkHealth();
+  await loadModes();
+  await loadModels();
+  await loadThreads();
+  updateTopbar(state.currentMode);
+  setInterval(checkHealth, 15000);
+})();
+</script>
+</body>
+</html>
