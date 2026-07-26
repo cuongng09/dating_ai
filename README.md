@@ -113,7 +113,7 @@ Kích hoạt dịch vụ:
 
 ```bash
 sudo systemctl daemon-reload
-sudo systemctl enable telegram-bot.service
-sudo systemctl start telegram-bot.service
-sudo systemctl status telegram-bot.service
+sudo systemctl enable Dating-AI.service
+sudo systemctl start Dating-AI.service
+sudo systemctl status Dating-AI.service
 ```
