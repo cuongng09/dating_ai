@@ -17,8 +17,7 @@ DATA_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "data")
 THREADS_DIR = os.path.join(DATA_DIR, "threads")
 os.makedirs(THREADS_DIR, exist_ok=True)
 
-app = Flask(__name__, static_folder="static", static_url_path="")
-
+app = Flask(__name__, static_folder="static", static_url_path="/static")
 # ---------------------------------------------------------------------------
 # System prompts cho từng chế độ (persona) hỗ trợ hẹn hò
 # ---------------------------------------------------------------------------
