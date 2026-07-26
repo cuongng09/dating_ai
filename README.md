@@ -79,3 +79,41 @@ dating-ai/
 ## Tuỳ biến thêm
 - Muốn thêm chế độ mới: sửa dict `MODES` trong `server.py`, thêm 1 mục `label`, `subtitle`, `system`.
 - Muốn đổi giao diện: sửa `static/index.html` (biến màu ở đầu file `:root{...}`).
+
+## 4. Chạy dưới dạng dịch vụ systemd trên Linux
+Tạo file dịch vụ:
+
+```bash
+sudo nano /etc/systemd/system/Dating-AI.service
+```
+
+Nội dung mẫu:
+
+```ini
+[Unit]
+Description=Dating AI Server (Flask)
+After=network.target
+
+[Service]
+Type=simple
+WorkingDirectory=/home/cwng/Documents/GitHub/dating-ai
+ExecStart=/usr/bin/python3 /home/cwng/Documents/GitHub/dating-ai/server.py
+Restart=on-failure
+RestartSec=5
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target
+```
+
+Thay `USERNAME` bằng tên người dùng và cập nhật đường dẫn phù hợp.
+
+Kích hoạt dịch vụ:
+
+```bash
+sudo systemctl daemon-reload
+sudo systemctl enable telegram-bot.service
+sudo systemctl start telegram-bot.service
+sudo systemctl status telegram-bot.service
+```
