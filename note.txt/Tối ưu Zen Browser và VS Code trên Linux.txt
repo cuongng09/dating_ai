@@ -1,0 +1,264 @@
+# Ghi chú: Tối ưu Zen Browser và VS Code trên Linux
+
+## Mục tiêu
+Tạo giao diện gần giống macOS trên Linux bằng cách kết hợp các tùy chỉnh CSS, extension và cấu hình hệ thống.
+
+## 1. Zen Browser
+
+### 1.1 Tải và cài đặt
+Trang tài liệu chính thức:
+```bash
+https://docs.zen-browser.app/guides/install-linux
+```
+
+### 1.2 Kích hoạt hỗ trợ CSS tùy chỉnh
+1. Mở Zen Browser.
+2. Truy cập địa chỉ: `about:config`.
+3. Chấp nhận cảnh báo nếu xuất hiện.
+4. Tìm khóa: `toolkit.legacyUserProfileCustomizations.stylesheets`.
+5. Đổi giá trị từ `false` sang `true`.
+
+### 1.3 Xác định thư mục Profile
+1. Mở `about:support`.
+2. Tìm mục `Profile Directory`.
+3. Nhấn `Open Directory` để mở thư mục hồ sơ.
+4. Ghi nhớ đường dẫn, ví dụ:
+```bash
+~/.zen/[tên_profile]
+```
+Hoặc nếu dùng Flatpak:
+```bash
+~/.var/app/io.zen_browser.zen/.zen/[tên_profile]
+```
+
+### 1.4 Cài đặt Zen Mods
+1. Mở `about:zen-mods`.
+2. Cài đặt các mod sau:
+   - `macOS Window Controls`
+   - `Hide Titlebar`
+3. Khởi động lại Zen Browser.
+
+### 1.5 Tạo file CSS tùy chỉnh
+Di chuyển vào thư mục profile của Zen:
+```bash
+cd ~/.zen/[tên_profile]
+```
+Ví dụ:
+```bash
+cd "/home/cwng/.config/zen/jsxzj7sw.Default (release)-1"
+```
+
+Tạo thư mục và file cấu hình:
+```bash
+mkdir -p chrome
+touch chrome/userChrome.css
+```
+
+Dán nội dung sau vào `chrome/userChrome.css`:
+```css
+/* --- Đồng bộ màu sắc WhiteSur GTK --- */
+:root {
+    --zen-primary-color: #007aff !important;
+    --zen-border-radius: 10px !important;
+}
+
+/* --- Tùy chỉnh nút traffic lights --- */
+.titlebar-buttonbox-container {
+    appearance: none !important;
+    position: absolute !important;
+    top: 14px !important;
+    left: 16px !important;
+    display: flex !important;
+    flex-direction: row !important;
+    z-index: 9999 !important;
+    background: transparent !important;
+}
+
+.titlebar-buttonbox {
+    appearance: none !important;
+    background: transparent !important;
+}
+
+.titlebar-button {
+    appearance: none !important;
+    min-width: 12px !important;
+    min-height: 12px !important;
+    width: 12px !important;
+    height: 12px !important;
+    margin: 0px 8px !important;
+    padding: 0 !important;
+    border-radius: 50% !important;
+    border: 0.5px solid rgba(0, 0, 0, 0.15) !important;
+    box-sizing: content-box !important;
+    transition: background-color 0.2s ease !important;
+    box-shadow: none !important;
+    background-image: none !important;
+    list-style-image: none !important;
+}
+
+.titlebar-button .toolbarbutton-icon,
+.titlebar-button image {
+    display: none !important;
+    opacity: 0 !important;
+}
+
+.titlebar-close {
+    order: 1 !important;
+    background-color: #ff5f56 !important;
+}
+
+.titlebar-min {
+    order: 2 !important;
+    background-color: #ffbd2e !important;
+}
+
+.titlebar-max {
+    order: 3 !important;
+    background-color: #27c93f !important;
+}
+
+.titlebar-button:hover {
+    background-image: none !important;
+}
+
+.titlebar-close:hover { background-color: #ff3b30 !important; }
+.titlebar-min:hover { background-color: #e5a50a !important; }
+.titlebar-max:hover { background-color: #1aab29 !important; }
+
+/* --- Font chữ --- */
+* {
+    font-family: ".SF Pro Display", "San Francisco", sans-serif !important;
+}
+
+#main-window {
+    background-color: transparent !important;
+}
+```
+
+## 2. Cài đặt công cụ hỗ trợ GNOME
+```bash
+sudo apt update
+sudo apt install gnome-tweaks gnome-shell-extension-manager -y
+```
+
+## 3. VS Code
+
+### 3.1 Dọn cấu hình cũ nếu gặp lỗi
+```bash
+sudo apt remove --purge code -y
+sudo apt autoremove -y
+rm -rf ~/.config/Code ~/.vscode
+```
+
+### 3.2 Cài đặt bản VS Code chuẩn từ Microsoft
+```bash
+cd ~/Downloads
+wget -O vscode.deb https://update.code.visualstudio.com/latest/linux-deb-x64/stable
+sudo apt install ./vscode.deb -y
+```
+
+### 3.3 Cấp quyền cho hệ thống
+```bash
+sudo chown -R $USER /usr/share/code
+```
+
+### 3.4 Tạo file CSS cho giao diện macOS
+```bash
+nano ~/Downloads/mac-style.css
+```
+
+Dán nội dung sau:
+```css
+/* --- Font chữ --- */
+.monaco-workbench {
+    font-family: ".SF Pro Display", "San Francisco", system-ui, sans-serif !important;
+}
+
+/* --- Nút traffic lights cho VS Code --- */
+.titlebar-container {
+    display: flex !important;
+    flex-direction: row-reverse !important;
+}
+
+.window-appicon {
+    display: none !important;
+}
+
+.window-controls-container {
+    display: flex !important;
+    flex-direction: row !important;
+    padding-left: 16px !important;
+}
+
+.window-controls-container .window-icon {
+    appearance: none !important;
+    min-width: 12px !important;
+    min-height: 12px !important;
+    width: 12px !important;
+    height: 12px !important;
+    margin: 0px 8px !important;
+    padding: 0 !important;
+    border-radius: 50% !important;
+    border: 0.5px solid rgba(0, 0, 0, 0.15) !important;
+    box-sizing: content-box !important;
+    transition: background-color 0.2s ease !important;
+    background-color: transparent !important;
+}
+
+.window-controls-container .window-icon svg {
+    display: none !important;
+}
+
+.window-close {
+    order: 1 !important;
+    background-color: #ff5f56 !important;
+}
+
+.window-minimize {
+    order: 2 !important;
+    background-color: #ffbd2e !important;
+}
+
+.window-maximize, .window-unmaximize {
+    order: 3 !important;
+    background-color: #27c93f !important;
+}
+
+.window-close:hover { background-color: #ff3b30 !important; }
+.window-minimize:hover { background-color: #e5a50a !important; }
+.window-maximize:hover, .window-unmaximize:hover { background-color: #1aab29 !important; }
+```
+
+### 3.5 Cấu hình VS Code
+Mở `settings.json` và thay bằng nội dung sau:
+```json
+{
+    "window.titleBarStyle": "custom",
+    "apc.imports": [
+        "file:///home/cwng/Downloads/mac-style.css"
+    ],
+    "workbench.editor.empty.hint": "hidden"
+}
+```
+
+Sau đó cài đặt extension `Apc Customize UI++` và kích hoạt lại.
+
+## 4. Khắc phục sự cố
+Nếu giao diện không reset đúng:
+1. Gỡ extension `Apc Customize UI++`.
+2. Mở lại `settings.json`.
+3. Đặt lại nội dung như sau:
+```json
+{
+    "window.titleBarStyle": "native",
+    "workbench.editor.empty.hint": "hidden"
+}
+```
+4. Khởi động lại VS Code.
+
+## 5. Ghi chú bổ sung
+Nếu muốn thanh menu chỉ hiện khi nhấn `Alt`, thêm cấu hình sau vào `settings.json`:
+```json
+"window.menuBarVisibility": "toggle"
+```
+

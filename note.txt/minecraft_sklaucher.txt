@@ -1,0 +1,54 @@
+### 1. Tải về từ nguồn chính thức
+
+Chỉ tải từ trang web duy nhất: https://skmedix.pl/
+
+Tuyệt đối không tải từ các trang web khác (ngay cả khi kết quả tìm kiếm Google hiển thị các trang có từ khóa "SKlauncher download").
+
+Trên trang chủ, chọn mục Download và tải về bản .jar (bản dành cho Linux).
+
+### 2. Yêu cầu hệ thống (Java)
+
+SKlauncher là một ứng dụng Java, vì vậy máy tính của bạn phải có cài đặt sẵn Java Runtime (JRE).
+
+Kiểm tra xem máy đã có Java chưa: Mở Terminal và gõ java -version.
+
+Nếu chưa có: Cài đặt OpenJDK (ví dụ trên Ubuntu/Debian):
+```bash
+sudo apt update
+sudo apt install openjdk-21-jre
+```
+
+### 3. Cách chạy SKlauncher trên Linux
+
+Vì bản tải về là file .jar, bạn có thể chạy nó trực tiếp qua Terminal:
+
+    Mở Terminal tại thư mục bạn đã lưu file (chuột phải vào thư mục đó -> chọn "Open in Terminal").
+
+    Chạy lệnh sau:
+```bash
+java -jar SKlauncher-3.2.jar
+```    
+### 4. Tạo lối tắt
+Bước 1: Tạo file .desktop
+
+Mở Terminal và sử dụng trình soạn thảo văn bản (như nano) để tạo file mới trong thư mục chứa các lối tắt ứng dụng:
+```bash
+nano ~/.local/share/applications/sklauncher.desktop
+```
+Bước 2: Dán nội dung cấu hình
+
+Sao chép và dán đoạn mã dưới đây vào file đó. Lưu ý: Bạn cần sửa đường dẫn sao cho khớp với vị trí file .jar và file icon của bạn.
+```bash
+[Desktop Entry]
+Name=SKlauncher
+Comment=Minecraft Launcher
+Exec=java -jar /home/cwng/Downloads/SKlauncher-3.2.18.jar
+Icon=logo.png
+Type=Application
+Terminal=false
+Categories=Game;
+```
+Thay thế /home/ten_nguoi_dung/Downloads/SKlauncher-3.2.jar: Bằng đường dẫn chính xác nơi bạn đã lưu file .jar. (Bạn có thể dùng lệnh pwd trong thư mục chứa file để biết đường dẫn chính xác).
+
+Icon: Bạn có thể thay utilities-terminal bằng đường dẫn tới một file hình ảnh .png của logo SKlauncher nếu bạn đã tải về để biểu tượng đẹp hơn.
+

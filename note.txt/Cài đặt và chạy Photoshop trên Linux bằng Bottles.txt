@@ -1,0 +1,55 @@
+
+# Ghi chú: Cài đặt và chạy Photoshop trên Linux bằng Bottles
+
+## Mục tiêu
+- Cài đặt Adobe Photoshop trên Linux bằng Bottles.
+- Đảm bảo ứng dụng chạy ổn định và tối ưu hơn khi dùng GPU NVIDIA.
+
+## 1. Tải tài nguyên
+- Tải Photoshop từ Google Drive:
+```bash
+https://drive.google.com/file/d/18MKrRatbYuZOVH7U045M9J1yKLUgnjp2/view?usp=sharing
+```
+- Tải Bottle từ Flathub.
+
+## 2. Thiết lập Bottle và Photoshop
+1. Tạo một Bottle mới với tên:
+   - Adobe-Photoshop-2024-v25.1.0.120
+2. Copy thư mục Photoshop đã tải vào đường dẫn sau:
+```bash
+/home/cwng/My_Bottles/Adobe-Photoshop-2024-v25.1.0.120/drive_c/Photoshop-CC
+```
+3. Chọn Run Executable và mở file photoshop.exe từ đường dẫn trên.
+
+## 3. Khắc phục lỗi màn hình đen toàn màn hình
+Nếu gặp lỗi hiển thị toàn màn hình đen, thực hiện:
+- Vào Settings → Advanced Display Settings
+- Bật Virtual Desktop
+
+Sau khi thiết lập, Photoshop sẽ chạy bình thường.
+
+## 4. Cấu hình để dùng GPU NVIDIA
+Để Bottles ưu tiên dùng card đồ họa rời NVIDIA thay vì card tích hợp, làm theo các bước sau:
+- Vào Options → Settings
+- Trong mục Display, bật:
+  - Deep Learning Super Sampling
+  - Discrete Graphics
+
+### Biến môi trường cần thiết
+- __NV_PRIME_RENDER_OFFLOAD=1
+  - Chuyển tác vụ render từ GPU tích hợp sang GPU rời NVIDIA.
+- __GLX_VENDOR_LIBRARY_NAME=nvidia
+  - Buộc hệ thống dùng driver OpenGL của NVIDIA.
+- VK_ICD_FILENAMES=/usr/share/vulkan/icd.d/nvidia_icd.json
+  - Đảm bảo Vulkan dùng đúng driver NVIDIA.
+
+## 5. Tạo shortcut đến thư mục Bottle
+Mở Terminal và chạy lệnh sau:
+```bash
+ln -s /home/cwng/.var/app/com.usebottles.bottles/data/bottles/bottles ~/My_Bottles
+```
+Sau khi chạy xong, thư mục My_Bottles sẽ xuất hiện trong Home và dẫn trực tiếp tới kho Bottle.
+
+## 6. Ghi chú quan trọng
+- Nếu Photoshop bị lag hoặc lỗi đồ họa, hãy kiểm tra lại cấu hình GPU và các biến môi trường ở trên.
+- Đây là ghi chú ngắn để tra cứu nhanh khi cần thiết.

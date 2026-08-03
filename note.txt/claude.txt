@@ -1,0 +1,2 @@
+curl -fsSL https://claude.ai/install.sh | bash
+ollama launch claude --model qwen2.5-coder:7b
