@@ -230,6 +230,9 @@ Dán nội dung sau:
 ```
 
 ### 3.5 Cấu hình VS Code
+Cài đặt extension Apc Customize UI++
+Nhấn Ctrl + Shift + P (hoặc Cmd + Shift + P trên Mac)
+Gõ Preferences: Open User Settings (JSON) và nhấn Enter
 Mở `settings.json` và thay bằng nội dung sau:
 ```json
 {
