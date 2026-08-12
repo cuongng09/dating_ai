@@ -264,4 +264,12 @@ Nếu muốn thanh menu chỉ hiện khi nhấn `Alt`, thêm cấu hình sau và
 ```json
 "window.menuBarVisibility": "toggle"
 ```
+Nếu muốn thay đổi màu theme thay thế toàn bộ:
+```json
+{
+    "window.titleBarStyle": "native",
+    "workbench.editor.empty.hint": "hidden",
+    "window.menuBarVisibility": "toggle"
+}
+```
 
